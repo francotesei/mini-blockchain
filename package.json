@@ -1,0 +1,25 @@
+{
+  "name": "mini-blockchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
+    "start": "npm run build && node dist/app/app.js"
+  },
+  "keywords": [],
+  "author": "Franco Tesei",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.16.2",
+    "morgan": "^1.9.0",
+    "ws": "^3.3.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "rimraf": "^2.6.2"
+  }
+}
