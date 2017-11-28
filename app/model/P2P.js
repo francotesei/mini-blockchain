@@ -44,7 +44,6 @@ class P2P {
     let {ws} = params;
 
     ws.on('message', (data) => {
-      console.log("dataCarloss",data)
       var message = JSON.parse(data);
       console.log('Received message' + JSON.stringify(message));
       this.switchMsgResponse({ws:ws,message:message});
