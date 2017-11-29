@@ -100,7 +100,7 @@ class P2P {
       this.broadcast({message:{type:MessageType.QUERY_ALL}});
       } else {
         console.log("Received blockchain is longer than current blockchain");
-        if (Blockchain.replaceChain(receivedBlocks))
+        if (Blockchain.replaceChain({newBlocks:receivedBlocks}))
           this.broadcast({message:this.getResponseForType({type:MessageType.QUERY_LATEST})});
         }
       } else {

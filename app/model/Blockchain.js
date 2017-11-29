@@ -77,7 +77,7 @@ class Blockchain {
   }
   replaceChain(params) {
     let {newBlocks} = params;
-    if (this.isValidChain({newBlocks:newBlocks}) && newBlocks.length > blockchain.length) {
+    if (this.isValidChain({blockchainToValidate:newBlocks}) && newBlocks.length > blockchain.length) {
       console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
       blockchain = newBlocks;
       return true;
