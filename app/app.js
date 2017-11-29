@@ -8,7 +8,7 @@ import {default as routes} from './routes/index';
 import P2P from './model/P2P';
 
 const http_port = process.env.PORT || 3001;
-const p2p_port = process.env.P2P_PORT || 6001;
+const p2p_port = process.env.PORT || 6001;
 const discoverPeers = process.env.DISCOVER_PEERS || false;
 const masterNode = process.env.MASTER_NODE || false;
 const initialPeers = process.env.PEERS
@@ -46,6 +46,6 @@ var initDiscoveryPeers = () => {
 
 P2P.connectToPeers({peers: initialPeers});
 initHttpServer();
-//initP2PServer();
+initP2PServer();
 if (discoverPeers)
   initDiscoveryPeers();
