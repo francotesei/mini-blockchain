@@ -24,7 +24,9 @@ class P2P {
     var self = this;
     peers.forEach((peer) => {
       var ws = new WebSocket(peer);
-      ws.on('open', () => {self.initConnection({ws:ws})});
+      ws.on('open', () => {
+        self.initConnection({ws: ws})
+      });
       ws.on('error', () => {
         console.log('connection failed')
       });
@@ -35,9 +37,14 @@ class P2P {
   initConnection(params) {
     let {ws} = params;
     this.sockets.push(ws);
-    this.initMessageHandler({ws:ws});
-    this.initErrorHandler({ws:ws});
-    this.write({ws:ws, message:{'type': MessageType.QUERY_LATEST}});
+    this.initMessageHandler({ws: ws});
+    this.initErrorHandler({ws: ws});
+    this.write({
+      ws: ws,
+      message: {
+        'type': MessageType.QUERY_LATEST
+      }
+    });
   };
 
   initMessageHandler(params) {
@@ -46,43 +53,50 @@ class P2P {
     ws.on('message', (data) => {
       var message = JSON.parse(data);
       console.log('Received message' + JSON.stringify(message));
-      this.switchMsgResponse({ws:ws,message:message});
+      this.switchMsgResponse({ws: ws, message: message});
     });
   };
 
   switchMsgResponse(params) {
-    let {message,ws} = params;
+    let {message, ws} = params;
 
     switch (message.type) {
       case MessageType.QUERY_LATEST:
-        this.write({ws:ws, message:this.getResponseForType({type:message.type})});
+        this.write({
+          ws: ws,
+          message: this.getResponseForType({type: message.type})
+        });
         break;
       case MessageType.QUERY_ALL:
-        this.write({ws:ws, message:this.getResponseForType({type:message.type})});
+        this.write({
+          ws: ws,
+          message: this.getResponseForType({type: message.type})
+        });
         break;
       case MessageType.RESPONSE_BLOCKCHAIN:
-        this.handleBlockchainResponse({message:message});
+        this.handleBlockchainResponse({message: message});
         break;
     }
   };
 
-  getResponseForType(params){
-    let { type } = params;
+  getResponseForType(params) {
+    let {type} = params;
     switch (type) {
-      case MessageType.QUERY_LATEST: return  {
-        'type': MessageType.RESPONSE_BLOCKCHAIN,
-        'data': JSON.stringify([Blockchain.getLatestBlock()])
-      }
-      case MessageType.QUERY_ALL: return  {
-        'type': MessageType.RESPONSE_BLOCKCHAIN,
-        'data': JSON.stringify(Blockchain.chain)
-      }
-      default: return;
+      case MessageType.QUERY_LATEST:
+        return {
+          'type': MessageType.RESPONSE_BLOCKCHAIN,
+          'data': JSON.stringify([Blockchain.getLatestBlock()])
+        }
+      case MessageType.QUERY_ALL:
+        return {
+          'type': MessageType.RESPONSE_BLOCKCHAIN,
+          'data': JSON.stringify(Blockchain.chain)
+        }
+      default:
+        return;
 
     }
   }
-
-
 
   handleBlockchainResponse(params) {
     let {message} = params;
@@ -94,14 +108,22 @@ class P2P {
       if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
         console.log("We can append the received block to our chain");
         Blockchain.chain.push(latestBlockReceived);
-        this.broadcast({message:this.getResponseForType({type:MessageType.QUERY_LATEST})});
+        this.broadcast({
+          message: this.getResponseForType({type: MessageType.QUERY_LATEST})
+        });
       } else if (receivedBlocks.length === 1) {
         console.log("We have to query the chain from our peer");
-      this.broadcast({message:{type:MessageType.QUERY_ALL}});
+        this.broadcast({
+          message: {
+            type: MessageType.QUERY_ALL
+          }
+        });
       } else {
         console.log("Received blockchain is longer than current blockchain");
-        if (Blockchain.replaceChain({newBlocks:receivedBlocks}))
-          this.broadcast({message:this.getResponseForType({type:MessageType.QUERY_LATEST})});
+        if (Blockchain.replaceChain({newBlocks: receivedBlocks}))
+          this.broadcast({
+            message: this.getResponseForType({type: MessageType.QUERY_LATEST})
+          });
         }
       } else {
       console.log('received blockchain is not longer than received blockchain. Do nothing');
@@ -110,8 +132,8 @@ class P2P {
 
   initErrorHandler(params) {
     let {ws} = params;
-    ws.on('close', () => this.closeConnection({ws:ws}));
-    ws.on('error', () => this.closeConnection({ws:ws}));
+    ws.on('close', () => this.closeConnection({ws: ws}));
+    ws.on('error', () => this.closeConnection({ws: ws}));
   };
 
   closeConnection(params) {
@@ -120,13 +142,13 @@ class P2P {
     this.sockets.splice(this.sockets.indexOf(ws), 1);
   };
   write(params) {
-    let {ws,message} = params;
-    console.log("Sending",JSON.stringify(message))
+    let {ws, message} = params;
+    console.log("Sending", JSON.stringify(message))
     return ws.send(JSON.stringify(message))
   };
   broadcast(params) {
     let {message} = params;
-    return this.sockets.forEach(socket => this.write({ws:socket, message:message}))
+    return this.sockets.forEach(socket => this.write({ws: socket, message: message}))
   };
 }
 

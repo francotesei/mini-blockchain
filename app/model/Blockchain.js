@@ -1,16 +1,12 @@
 import * as CryptoJS from 'crypto-js'
 
 var calculateHash = (params) => {
-  let {index , previoushash ,timestamp,data} = params;
+  let {index, previoushash, timestamp, data} = params;
   return CryptoJS.SHA256(index + previousHash + timestamp + data).toString();
 };
 var calculateHashForBlock = (params) => {
   let {newBlock} = params;
-  return calculateHash({
-    index:newBlock.index,
-    previousHash:newBlock.previousHash,
-    timestamp:newBlock.timestamp,
-    data:newBlock.data});
+  return calculateHash({index: newBlock.index, previousHash: newBlock.previousHash, timestamp: newBlock.timestamp, data: newBlock.data});
 }
 
 class Block {
@@ -20,11 +16,7 @@ class Block {
     this.previousHash = latestBlock.hash;
     this.timestamp = new Date().getTime();
     this.data = data;
-    this.hash = calculateHash({
-      index:this.index,
-      previousHash:this.previousHash,
-      timestamp:this.timestamp,
-      data:data});
+    this.hash = calculateHash({index: this.index, previousHash: this.previousHash, timestamp: this.timestamp, data: data});
   }
 }
 
@@ -47,15 +39,15 @@ class Blockchain {
   addBlock(params) {
 
     let {block} = params
-    if (this.isValidBlock({newBlock:block})) {
+    if (this.isValidBlock({newBlock: block})) {
       this.chain.push(block);
-      console.log("Added block",block);
+      console.log("Added block", block);
       return block;
     }
   }
 
   isValidBlock(params) {
-    let {newBlock,preBlock} = params;
+    let {newBlock, preBlock} = params;
 
     console.log("Validating blocks");
     let previousBlock = (preBlock == undefined)
@@ -68,24 +60,37 @@ class Blockchain {
     } else if (previousBlock.hash !== newBlock.previousHash) {
       console.log('invalid previoushash');
       return false;
-    } else if (calculateHashForBlock({newBlock:newBlock}) !== newBlock.hash) {
-      console.log(typeof(newBlock.hash) + ' ' + typeof calculateHashForBlock({newBlock:newBlock}));
-      console.log('invalid hash: ' + calculateHashForBlock({newBlock:newBlock}) + ' ' + newBlock.hash);
+    } else if (calculateHashForBlock({newBlock: newBlock}) !== newBlock.hash) {
+      console.log(typeof(newBlock.hash) + ' ' + typeof calculateHashForBlock({newBlock: newBlock}));
+      console.log('invalid hash: ' + calculateHashForBlock({newBlock: newBlock}) + ' ' + newBlock.hash);
       return false;
     }
     return true;
   }
   replaceChain(params) {
     let {newBlocks} = params;
-    if (this.isValidChain({blockchainToValidate:newBlocks}) && newBlocks.length > blockchain.length) {
+    if (this.isValidChain({blockchainToValidate: newBlocks}) && newBlocks.length > this.chain.length) {
       console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
-      blockchain = newBlocks;
+      this.chain.length = 0;
+      this.chain.push.apply(this.chain, newBlocks);
+      return true;
+    } else if (this.isGenesisBlock({blocks: this.chain})) {
+      console.log("the current blockchain only has the genesis block");
+      console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
+      this.chain.length = 0;
+      this.chain.push.apply(this.chain, newBlocks);
       return true;
     } else {
       console.log('Received blockchain invalid');
       return false;
     }
   };
+
+  isGenesisBlock(params) {
+    let {blocks} = params;
+    return (blocks.length == 1 && blocks[0].index == genesisBlock.index && blocks[0].previousHash == genesisBlock.previousHash);
+    //TODO: hacer un validacion + fuerte para el genesis
+  }
 
   isValidChain(params) {
     let {blockchainToValidate} = params;
@@ -95,7 +100,10 @@ class Blockchain {
     }
     var tempBlocks = [blockchainToValidate[0]];
     for (var i = 1; i < blockchainToValidate.length; i++) {
-      if (this.isValidBlock({newBlock:blockchainToValidate[i], preBlock:tempBlocks[i - 1]})) {
+      if (this.isValidBlock({
+        newBlock: blockchainToValidate[i],
+        preBlock: tempBlocks[i - 1]
+      })) {
         tempBlocks.push(blockchainToValidate[i]);
       } else {
         return false;
@@ -105,12 +113,19 @@ class Blockchain {
   };
 
 }
+
 let index = 0;
 let previousHash = 0;
 let timestamp = new Date().getTime();
 let data = "i am genesis block";
 let hash = calculateHash(index, previousHash, timestamp, data)
-var instance = new Blockchain({index: index, previousHash: previousHash, timestamp: timestamp, data: data, hash: hash});
-
+const genesisBlock = {
+  index: index,
+  previousHash: previousHash,
+  timestamp: timestamp,
+  data: data,
+  hash: hash
+};
+var instance = new Blockchain(genesisBlock);
 Object.freeze(instance);
 export default instance;
