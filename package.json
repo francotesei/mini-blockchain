@@ -2,8 +2,14 @@
   "name": "mini-blockchain",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "engines":{
+    "node":"v8.2.1",
+    "npm":"4.1.2"
+  },
   "scripts": {
+    "heroku-prebuild": "npm install",
+    "heroku-postbuild": "",
     "build": "rimraf dist/ && babel ./ --out-dir dist/ --ignore ./node_modules,./.babelrc,./package.json,./npm-debug.log --copy-files",
     "start": "npm run build && node dist/app/app.js"
   },

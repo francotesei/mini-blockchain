@@ -10,6 +10,7 @@ import P2P from './model/P2P';
 const http_port = process.env.HTTP_PORT || 3001;
 const p2p_port = process.env.P2P_PORT || 6001;
 const discoverPeers = process.env.DISCOVER_PEERS || true;
+const masterNode = process.env.MASTER_NODE || false;
 const initialPeers = process.env.PEERS
   ? process.env.PEERS.split(',')
   : [];
@@ -26,7 +27,7 @@ var initP2PServer = () => {
   var server = new WebSocket.Server({port: p2p_port});
   var myServ = discovery();
   server.on('connection', ws => P2P.initConnection({ws: ws}));
-  myServ.announce('node-app', p2p_port) // announce an app
+  myServ.announce('local-node', p2p_port) // announce an app
   console.log('listening websocket p2p port on: ' + p2p_port);
 };
 
