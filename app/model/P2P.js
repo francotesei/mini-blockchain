@@ -55,10 +55,10 @@ class P2P {
 
     switch (message.type) {
       case MessageType.QUERY_LATEST:
-        this.write({ws:ws, message:this.getQueryForType({type:message.type})});
+        this.write({ws:ws, message:this.getResponseForType({type:message.type})});
         break;
       case MessageType.QUERY_ALL:
-        this.write({ws:ws, message:this.getQueryForType({type:message.type})});
+        this.write({ws:ws, message:this.getResponseForType({type:message.type})});
         break;
       case MessageType.RESPONSE_BLOCKCHAIN:
         this.handleBlockchainResponse({message:message});
@@ -66,7 +66,7 @@ class P2P {
     }
   };
 
-  getQueryForType(params){
+  getResponseForType(params){
     let { type } = params;
     switch (type) {
       case MessageType.QUERY_LATEST: return  {
@@ -82,6 +82,8 @@ class P2P {
     }
   }
 
+
+
   handleBlockchainResponse(params) {
     let {message} = params;
     var receivedBlocks = JSON.parse(message.data).sort((b1, b2) => (b1.index - b2.index));
@@ -92,14 +94,14 @@ class P2P {
       if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
         console.log("We can append the received block to our chain");
         Blockchain.chain.push(latestBlockReceived);
-        this.broadcast({message:this.getQueryForType({type:MessageType.QUERY_LATEST})});
+        this.broadcast({message:this.getResponseForType({type:MessageType.QUERY_LATEST})});
       } else if (receivedBlocks.length === 1) {
         console.log("We have to query the chain from our peer");
-      this.broadcast({message:this.getQueryForType({type:MessageType.QUERY_ALL})});
+      this.broadcast({message:{type:MessageType.QUERY_ALL}});
       } else {
         console.log("Received blockchain is longer than current blockchain");
         if (Blockchain.replaceChain(receivedBlocks))
-          this.broadcast({message:this.getQueryForType({type:MessageType.QUERY_LATEST})});
+          this.broadcast({message:this.getResponseForType({type:MessageType.QUERY_LATEST})});
         }
       } else {
       console.log('received blockchain is not longer than received blockchain. Do nothing');

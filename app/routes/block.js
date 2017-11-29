@@ -9,7 +9,7 @@ var addBlock = (req,res)=>{
   let block = JSON.stringify(blockchain.addBlock({
     block:blockchain.nextBlock({data:req.body.data})
   }));
-  P2P.broadcast({message:P2P.getQueryForType({type:P2P.messageType.QUERY_LATEST})});
+  P2P.broadcast({message:P2P.getResponseForType({type:P2P.messageType.QUERY_LATEST})});
   res.send(block);
 }
 
