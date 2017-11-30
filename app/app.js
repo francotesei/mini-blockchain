@@ -7,7 +7,7 @@ import {default as ip} from 'ip';
 import {default as routes} from './routes/index';
 import P2P from './model/P2P';
 
-const http_port = process.env.HTTP_PORT || 80;
+const http_port = process.env.HTTP_PORT || 8080;
 const p2p_port = process.env.P2P_PORT || 433;
 const discoverPeers = process.env.DISCOVER_PEERS || true;
 const masterNode = process.env.MASTER_NODE || false;
