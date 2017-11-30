@@ -8,8 +8,8 @@ import {default as routes} from './routes/index';
 import P2P from './model/P2P';
 
 const http_port = process.env.PORT || 6001;
-const p2p_port = process.env.P2P_PORT || 443;
-const discoverPeers = process.env.DISCOVER_PEERS || true;
+const p2p_port = process.env.PORT || 443;
+const discoverPeers = process.env.DISCOVER_PEERS || false;
 const masterNode = process.env.MASTER_NODE || false;
 const initialPeers = process.env.PEERS
   ? process.env.PEERS.split(',')
@@ -50,7 +50,7 @@ var saveNodeInfo = () => {
 */
 
 P2P.connectToPeers({peers: initialPeers});
-initHttpServer();
+//initHttpServer();
 initP2PServer();
 if (discoverPeers)
   initDiscoveryPeers();
